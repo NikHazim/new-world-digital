@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>New World Digital — Standalone Demo</title>
+<style>
+:root{--bg:#0b1020;--panel:#151d32;--panel2:#1d2942;--text:#f3f6ff;--muted:#a9b5cf;--accent:#7c5cff;--accent2:#26d0ce;--line:#2a3652;--good:#3ddc97}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#0b1020,#111a2d 55%,#10142a);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:#0b1020eF;border-bottom:1px solid var(--line);padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;backdrop-filter:blur(10px)}
+.brand{font-weight:900;letter-spacing:.3px}.brand span{color:var(--accent2)}.userchip{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:6px 10px;border-radius:99px}
+.shell{max-width:1200px;margin:auto;padding:16px;display:grid;grid-template-columns:220px minmax(0,1fr);gap:16px}
+nav{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px;height:max-content;position:sticky;top:72px}
+nav button{width:100%;text-align:left;background:transparent;color:var(--muted);border:0;padding:11px;border-radius:10px;cursor:pointer;margin:2px 0;font-weight:650}
+nav button.active,nav button:hover{background:var(--panel2);color:white}
+main{min-width:0}.hero{padding:22px;border:1px solid var(--line);border-radius:20px;background:radial-gradient(ellipse at top right,#40327d77,transparent 50%),var(--panel);margin-bottom:16px}
+h1{font-size:clamp(24px,4vw,38px);line-height:1.12;margin:0 0 10px}h2{margin:0 0 14px;font-size:22px}h3{margin:0 0 8px;font-size:16px}.muted{color:var(--muted)}.tiny{font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;min-width:0}.stat{font-size:26px;font-weight:850}.section{display:none}.section.active{display:block}.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.between{justify-content:space-between}
+button.primary,.primary{background:linear-gradient(100deg,var(--accent),#5d78ff);border:0;color:#fff;border-radius:10px;padding:10px 14px;font-weight:750;cursor:pointer}
+button.secondary{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:9px 12px;cursor:pointer}
+button.danger{background:#542b3b;color:#ffd9e4;border:1px solid #85465d;border-radius:10px;padding:9px 12px;cursor:pointer}
+input,select,textarea{width:100%;background:#0e1628;border:1px solid var(--line);border-radius:10px;color:var(--text);padding:11px;font:inherit;margin:5px 0 10px}
+label{font-size:13px;color:var(--muted)}.formrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.list{display:grid;gap:10px}.item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;background:#10182b;border:1px solid var(--line);border-radius:12px}.item .info{min-width:0}.item p{margin:3px 0}.pill{font-size:11px;border:1px solid #3b4968;color:#c4d2f3;padding:3px 8px;border-radius:99px}
+#world{height:300px;width:100%;border-radius:14px;background:#111b2e;border:1px solid var(--line);display:block}
+.avatar{width:70px;height:70px;border-radius:20px;background:linear-gradient(145deg,#6b5bff,#26d0ce);display:grid;place-items:center;font-size:34px}
+footer{max-width:1200px;margin:0 auto;padding:0 16px 24px;color:var(--muted);font-size:12px}
+.mobilehead{display:none}
+@media(max-width:760px){.shell{grid-template-columns:1fr;padding:10px}nav{position:static;display:flex;overflow:auto;gap:4px}nav button{white-space:nowrap;width:auto;margin:0}.hero{padding:17px}header{padding:10px}.userchip{display:none}}
+</style>
+</head>
+<body>
+<header><div class="brand">🌐 NEW <span>WORLD</span> DIGITAL</div><div class="userchip" id="topuser">Guest • Demo Mode</div></header>
+<div class="shell">
+<nav id="nav">
+<button class="active" data-page="home">🏠 Dashboard</button>
+<button data-page="world">🕹️ Dunia 3D</button>
+<button data-page="account">👤 Akaun / Profil</button>
+<button data-page="tasks">🎯 Tugasan & Ganjaran</button>
+<button data-page="wallet">💳 Wallet</button>
+<button data-page="delivery">🍔 Food Delivery</button>
+<button data-page="market">🛍️ Marketplace</button>
+<button data-page="transport">🚕 Pengangkutan</button>
+<button data-page="tickets">🎟️ Tiket</button>
+<button data-page="chat">💬 Customer Service</button>
+<button data-page="admin">🛠️ Admin Demo</button>
+</nav>
+<main>
+<section class="section active" id="home">
+<div class="hero"><div class="pill">STANDALONE INTERACTIVE PROTOTYPE</div><h1>Selamat datang ke<br>New World Digital</h1><p class="muted">Satu tempat untuk dunia maya, ganjaran, penghantaran, marketplace dan servis digital.</p><div class="row"><button class="primary" onclick="go('world')">Masuk Dunia</button><button class="secondary" onclick="go('account')">Daftar / Profil</button></div></div>
+<div class="grid">
+<div class="card"><div class="muted">Wallet demo</div><div class="stat" id="homebalance">NW 100</div><div class="tiny">Syiling maya (demo)</div></div>
+<div class="card"><div class="muted">Tugasan tersedia</div><div class="stat">3</div><div class="tiny">Dapat ganjaran apabila selesai</div></div>
+<div class="card"><div class="muted">Mod</div><div class="stat">Demo</div><div class="tiny">Tiada pembayaran sebenar</div></div>
+<div class="card"><div class="muted">Modul</div><div class="stat">11</div><div class="tiny">Navigasi prototaip</div></div>
+</div>
+<div class="card" style="margin-top:12px"><h2>Aktiviti terkini</h2><div id="activity" class="list"><div class="item">Akaun demo dimulakan <span class="pill">Baru</span></div></div></div>
+</section>
+
+<section class="section" id="world">
+<div class="hero"><h1>🕹️ Dunia Maya</h1><p class="muted">Prototype peta interaktif. Gerakkan avatar dengan butang atau WASD. Peta 2D ini ialah asas untuk upgrade ke 3D.</p></div>
+<canvas id="world" width="900" height="360"></canvas>
+<div class="row" style="margin-top:12px"><button class="secondary" onclick="move(0,-20)">⬆️</button><button class="secondary" onclick="move(-20,0)">⬅️</button><button class="secondary" onclick="move(20,0)">➡️</button><button class="secondary" onclick="move(0,20)">⬇️</button><button class="secondary" onclick="emote('👋')">Lambai</button><button class="secondary" onclick="emote('💃')">Menari</button><button class="secondary" onclick="emote('🤝')">Bersalam</button><button class="secondary" onclick="emote('🦘')">Lompat</button></div>
+<p class="tiny">GPS/lokasi sebenar, multiplayer, avatar 3D, memancing dan menyelam memerlukan pembangunan lanjut serta servis backend.</p>
+</section>
+
+<section class="section" id="account">
+<div class="hero"><h1>👤 Akaun & Profil</h1><p class="muted">Demo daftar dan kemas kini profil — data disimpan pada browser peranti ini sahaja.</p></div>
+<div class="card"><form id="profileform"><div class="formrow"><div><label>Nama pemain</label><input id="name" placeholder="Nama anda" required></div><div><label>Username</label><input id="username" placeholder="@username" required></div><div><label>Email (demo)</label><input id="email" type="email" placeholder="nama@email.com"></div></div><div class="formrow"><div><label>Pilih avatar</label><select id="avatar"><option>🧑‍🚀</option><option>🧙</option><option>🧝</option><option>🦸</option><option>🐼</option></select></div><div><label>Kod referral</label><input id="ref" placeholder="Kod rujukan (pilihan)"></div></div><button class="primary">Simpan Profil</button></form><p id="profilemsg" class="tiny"></p></div>
+</section>
+
+<section class="section" id="tasks">
+<div class="hero"><h1>🎯 Tugasan & Ganjaran</h1><p class="muted">Selesaikan tugasan demo untuk mendapatkan syiling maya.</p></div>
+<div class="list" id="tasklist"></div>
+</section>
+
+<section class="section" id="wallet">
+<div class="hero"><h1>💳 Wallet</h1><p class="muted">Baki syiling demo dan rekod transaksi. Tiada wang sebenar digunakan.</p><div class="stat" id="balance">NW 100</div></div>
+<div class="card"><h3>Top up demo</h3><div class="row"><button class="primary" onclick="topup(25)">Tambah NW 25</button><button class="secondary" onclick="topup(100)">Tambah NW 100</button><button class="secondary" onclick="showHistory()">Sejarah transaksi</button></div><div id="history" class="list" style="margin-top:12px"></div></div>
+</section>
+
+<section class="section" id="delivery">
+<div class="hero"><h1>🍔 Food Delivery</h1><p class="muted">Pilih menu, masukkan ke troli dan buat pesanan simulasi.</p></div>
+<div class="grid" id="foodlist"></div>
+<div class="card" style="margin-top:12px"><h2>Troli</h2><div id="cart"></div><div class="row between"><strong id="total">Jumlah: RM0.00</strong><button class="primary" onclick="checkout()">Hantar pesanan demo</button></div></div>
+</section>
+
+<section class="section" id="market">
+<div class="hero"><h1>🛍️ Marketplace</h1><p class="muted">Senarai produk contoh. Jual beli sebenar memerlukan backend dan pemprosesan bayaran selamat.</p></div>
+<div class="row"><input id="marketsearch" placeholder="Cari produk..." oninput="renderMarket()"></div><div class="grid" id="marketlist"></div>
+<div class="card" style="margin-top:12px"><h3>Daftar kedai (demo)</h3><div class="formrow"><input id="shopname" placeholder="Nama kedai"><select id="shopcat"><option>Makanan</option><option>Produk digital</option><option>Barang</option><option>Hartanah</option></select></div><button class="primary" onclick="registerShop()">Hantar permohonan</button><p id="shopmsg" class="tiny"></p></div>
+</section>
+
+<section class="section" id="transport">
+<div class="hero"><h1>🚕 Pengangkutan</h1><p class="muted">Pendaftaran rakan pengangkutan dan jenis kenderaan (demo).</p></div>
+<div class="card"><div class="formrow"><div><label>Nama</label><input id="drivername" placeholder="Nama pemandu"></div><div><label>Jenis kenderaan</label><select id="vehicle"><option>Motor</option><option>Kereta</option><option>Lori</option><option>Bot</option><option>Van</option><option>Lain-lain</option></select></div><div><label>Telefon</label><input id="driverphone" placeholder="Nombor telefon"></div></div><button class="primary" onclick="registerDriver()">Daftar rakan pengangkutan</button><p id="drivermsg" class="tiny"></p></div>
+</section>
+
+<section class="section" id="tickets">
+<div class="hero"><h1>🎟️ Carian Tiket</h1><p class="muted">Carian simulasi bas dan kapal terbang. Tiada tiket ditempah.</p></div>
+<div class="card"><div class="formrow"><div><label>Dari</label><input id="from" placeholder="Kota Bharu"></div><div><label>Ke</label><input id="to" placeholder="Kuala Lumpur"></div><div><label>Tarikh</label><input id="date" type="date"></div><div><label>Jenis</label><select id="tickettype"><option>Bas</option><option>Kapal terbang</option></select></div></div><button class="primary" onclick="searchTicket()">Cari tiket demo</button><div id="ticketresult" style="margin-top:12px"></div></div>
+</section>
+
+<section class="section" id="chat">
+<div class="hero"><h1>💬 Customer Service</h1><p class="muted">Chat bantuan demo. Mesej tidak dihantar ke staf sebenar.</p></div>
+<div class="card"><div id="chatlog" class="list" style="min-height:120px"><div class="item">CS Demo: Hai! Apa yang boleh kami bantu?</div></div><form id="chatform" class="row" style="margin-top:12px"><input id="chatmsg" placeholder="Tulis mesej..." required><button class="primary">Hantar</button></form></div>
+</section>
+
+<section class="section" id="admin">
+<div class="hero"><h1>🛠️ Admin Demo</h1><p class="muted">Paparan pentadbir contoh. Ini bukan panel admin yang selamat untuk operasi sebenar.</p></div>
+<div class="grid"><div class="card"><div class="muted">Permohonan kedai</div><div class="stat" id="adminshops">0</div></div><div class="card"><div class="muted">Rakan pengangkutan</div><div class="stat" id="admindrivers">0</div></div><div class="card"><div class="muted">Pesanan demo</div><div class="stat" id="adminorders">0</div></div></div>
+<div class="card" style="margin-top:12px"><h3>Senarai permohonan</h3><div id="adminlist" class="list"></div><button class="danger" style="margin-top:12px" onclick="resetDemo()">Reset data demo</button></div>
+</section>
+</main></div>
+<footer>Demo UI standalone • Simpanan setempat (localStorage) • Jangan gunakan untuk kutipan wang, maklumat sensitif atau transaksi sebenar. Sistem produksi memerlukan backend, pengesahan akaun, keselamatan dan semakan undang-undang.</footer>
+<script>
+const $=id=>document.getElementById(id);
+let state=JSON.parse(localStorage.getItem('nwd_demo')||'null')||{balance:100,profile:{name:'',username:'',email:'',avatar:'🧑‍🚀',ref:''},transactions:[{text:'Baki permulaan demo',amount:100}],tasks:[],cart:{},shops:[],drivers:[],orders:[],activity:[]};
+const save=()=>{localStorage.setItem('nwd_demo',JSON.stringify(state));refresh()};
+function addActivity(t){state.activity.unshift(t);state.activity=state.activity.slice(0,8)}
+function go(page){document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id===page));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));if(page==='world')drawWorld();window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.page));
+function refresh(){$('balance').textContent='NW '+state.balance;$('homebalance').textContent='NW '+state.balance;$('topuser').textContent=(state.profile.username||'Guest')+' • Demo Mode';$('adminshops').textContent=state.shops.length;$('admindrivers').textContent=state.drivers.length;$('adminorders').textContent=state.orders.length;$('activity').innerHTML=state.activity.length?state.activity.map(t=>`<div class="item">${esc(t)} <span class="pill">Aktiviti</span></div>`).join(''):'<div class="item">Belum ada aktiviti</div>';$('adminlist').innerHTML=[...state.shops.map(x=>'Kedai: '+x),...state.drivers.map(x=>'Rakan: '+x),...state.orders.map(x=>'Pesanan: '+x)].map(x=>`<div class="item">${esc(x)}<span class="pill">Demo</span></div>`).join('')||'<div class="item">Tiada rekod</div>';renderCart()}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+$('profileform').onsubmit=e=>{e.preventDefault();state.profile={name:$('name').value,username:$('username').value,email:$('email').value,avatar:$('avatar').value,ref:$('ref').value};addActivity('Profil disimpan: '+state.profile.username);$('profilemsg').textContent='Profil demo berjaya disimpan dalam browser.';save()};
+function loadProfile(){for(let k of ['name','username','email','avatar','ref'])if(state.profile[k])$(k).value=state.profile[k]}
+const taskDefs=[['Login harian','Log masuk ke dunia digital',10],['Terokai dunia','Gerakkan avatar di peta',15],['Lihat marketplace','Semak produk contoh',5]];
+function renderTasks(){$('tasklist').innerHTML=taskDefs.map((t,i)=>`<div class="item"><div class="info"><h3>${t[0]}</h3><p class="muted">${t[1]}</p><span class="pill">Ganjaran NW ${t[2]}</span></div><button class="${state.tasks.includes(i)?'secondary':'primary'}" ${state.tasks.includes(i)?'disabled':''} onclick="claimTask(${i})">${state.tasks.includes(i)?'Selesai':'Tuntut'}</button></div>`).join('')}
+function claimTask(i){if(state.tasks.includes(i))return;state.tasks.push(i);state.balance+=taskDefs[i][2];state.transactions.unshift({text:'Ganjaran: '+taskDefs[i][0],amount:taskDefs[i][2]});addActivity('Ganjaran diperoleh: NW '+taskDefs[i][2]);renderTasks();save()}
+function topup(n){state.balance+=n;state.transactions.unshift({text:'Top up simulasi',amount:n});addActivity('Top up demo NW '+n);save()}
+function showHistory(){$('history').innerHTML=state.transactions.map(t=>`<div class="item"><span>${esc(t.text)}</span><strong>+NW ${t.amount}</strong></div>`).join('')}
+const foods=[['Nasi Briyani Ayam','RM12.00','🍛'],['Nasi Kandar Ayam','RM10.00','🍗'],['Teh Ais','RM3.00','🧋'],['Fries','RM5.00','🍟']];
+function renderFoods(){$('foodlist').innerHTML=foods.map((f,i)=>`<div class="card"><div style="font-size:34px">${f[2]}</div><h3>${f[0]}</h3><p class="muted">${f[1]}</p><button class="primary" onclick="addCart(${i})">Tambah ke troli</button></div>`).join('')}
+function addCart(i){state.cart[i]=(state.cart[i]||0)+1;addActivity('Menu ditambah ke troli: '+foods[i][0]);save()}
+function renderCart(){let keys=Object.keys(state.cart).filter(k=>state.cart[k]>0);$('cart').innerHTML=keys.length?keys.map(k=>`<div class="item"><span>${foods[k][0]} × ${state.cart[k]}</span><strong>${(parseFloat(foods[k][1].replace('RM',''))*state.cart[k]).toFixed(2)}</strong><button class="secondary" onclick="removeCart(${k})">−</button></div>`).join(''):'<p class="muted">Troli kosong.</p>';let total=keys.reduce((sum,k)=>sum+parseFloat(foods[k][1].replace('RM',''))*state.cart[k],0);$('total').textContent='Jumlah: RM'+total.toFixed(2)}
+function removeCart(i){state.cart[i]--;if(!state.cart[i])delete state.cart[i];save()}
+function checkout(){if(!Object.keys(state.cart).length){alert('Troli masih kosong.');return}let names=Object.keys(state.cart).map(k=>foods[k][0]+' × '+state.cart[k]).join(', ');state.orders.push(names);state.cart={};addActivity('Pesanan demo dihantar');save();alert('Pesanan simulasi diterima. Tiada bayaran sebenar.')}
+const products=[['Baju Avatar','NW 35','👕'],['Item digital','NW 20','💎'],['Ebook contoh','NW 12','📘'],['Lot kedai demo','Hubungi penjual','🏬'],['Rumah contoh','Hubungi penjual','🏠'],['Kenderaan maya','NW 80','🚗']];
+function renderMarket(){let q=($('marketsearch').value||'').toLowerCase();$('marketlist').innerHTML=products.filter(p=>p[0].toLowerCase().includes(q)).map(p=>`<div class="card"><div style="font-size:32px">${p[2]}</div><h3>${p[0]}</h3><p class="muted">${p[1]}</p><button class="secondary" onclick="alert('Butiran listing demo. Pembelian belum diaktifkan.')">Lihat</button></div>`).join('')}
+function registerShop(){let n=$('shopname').value.trim();if(!n){$('shopmsg').textContent='Sila masukkan nama kedai.';return}state.shops.push(n+' ('+$('shopcat').value+')');addActivity('Permohonan kedai demo dihantar: '+n);$('shopmsg').textContent='Permohonan demo direkod.';$('shopname').value='';save()}
+function registerDriver(){let n=$('drivername').value.trim();if(!n){$('drivermsg').textContent='Sila masukkan nama.';return}state.drivers.push(n+' — '+$('vehicle').value);addActivity('Pendaftaran rakan demo: '+n);$('drivermsg').textContent='Pendaftaran demo direkod.';save()}
+function searchTicket(){let a=$('from').value||'Lokasi asal',b=$('to').value||'Destinasi';$('ticketresult').innerHTML=`<div class="item"><div><strong>${esc($('tickettype').value)}: ${esc(a)} → ${esc(b)}</strong><p class="muted">Tarikh: ${esc($('date').value||'Belum dipilih')} • Hasil simulasi</p></div><span class="pill">Demo sahaja</span></div>`}
+$('chatform').onsubmit=e=>{e.preventDefault();let m=$('chatmsg').value.trim();if(!m)return;$('chatlog').insertAdjacentHTML('beforeend',`<div class="item"><span>${esc(m)}</span><span class="pill">Anda</span></div><div class="item">CS Demo: Mesej diterima. Untuk sistem sebenar, sambungkan ke backend chat.</div>`);$('chatmsg').value=''}
+function resetDemo(){if(confirm('Padam semua data demo pada browser ini?')){localStorage.removeItem('nwd_demo');location.reload()}}
+let px=100,py=170,face='🧑‍🚀';
+function drawWorld(){let c=$('world'),ctx=c.getContext('2d');let w=c.width,h=c.height;ctx.clearRect(0,0,w,h);ctx.fillStyle='#13233a';ctx.fillRect(0,0,w,h);ctx.strokeStyle='#233958';ctx.lineWidth=2;for(let x=0;x<w;x+=45){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}for(let y=0;y<h;y+=45){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}ctx.fillStyle='#244b49';ctx.fillRect(300,60,180,90);ctx.fillRect(580,210,200,90);ctx.fillStyle='#506e90';ctx.fillRect(50,40,130,70);ctx.fillRect(700,30,100,100);ctx.fillStyle='#e4eaff';ctx.font='18px system-ui';ctx.fillText('PLAZA',345,105);ctx.fillText('MARKET',630,260);ctx.font='40px system-ui';ctx.fillText(face,px,py);ctx.fillStyle='#7c5cff';ctx.beginPath();ctx.arc(px+17,py+8,28,0,Math.PI*2);ctx.stroke();ctx.font='12px system-ui';ctx.fillStyle='#dce7ff';ctx.fillText(state.profile.username||'Player',px-5,py+48)}
+function move(dx,dy){px=Math.max(30,Math.min(850,px+dx));py=Math.max(35,Math.min(320,py+dy));drawWorld();if(!state.tasks.includes(1)){state.tasks.push(1);state.balance+=15;state.transactions.unshift({text:'Terokai dunia',amount:15});addActivity('Ganjaran penerokaan NW 15');renderTasks();save()}}
+function emote(e){face=e;drawWorld();setTimeout(()=>{face=state.profile.avatar||'🧑‍🚀';drawWorld()},700)}
+window.addEventListener('keydown',e=>{if(!['w','a','s','d','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))return;if(document.activeElement.tagName==='INPUT')return;let m={w:[0,-15],ArrowUp:[0,-15],s:[0,15],ArrowDown:[0,15],a:[-15,0],ArrowLeft:[-15,0],d:[15,0],ArrowRight:[15,0]}[e.key];if(m)move(...m)});
+loadProfile();renderTasks();renderFoods();renderMarket();refresh();drawWorld();
+</script>
+</body>
+</html>
