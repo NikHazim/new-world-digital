@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>NH TRADE EMPIRE — Dunia Kita</title>
+<style>
+:root{--gold:#f5c65b;--ink:#12243a;--glass:rgba(9,22,39,.82)}
+*{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#142d42;font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:white}
+canvas{display:block;width:100vw;height:100vh;image-rendering:pixelated;touch-action:none}
+#hud{position:fixed;inset:0;pointer-events:none}
+.brand{position:absolute;top:14px;left:14px;padding:10px 14px;border:1px solid #f5c65b88;background:var(--glass);border-radius:14px;box-shadow:0 8px 30px #0005}
+.brand b{letter-spacing:2px;color:var(--gold);font-size:clamp(12px,2.5vw,18px)}.brand small{display:block;color:#d9e7f2;font-size:10px;letter-spacing:3px}
+.stats{position:absolute;right:14px;top:14px;background:var(--glass);border:1px solid #ffffff25;border-radius:14px;padding:10px 13px;font-size:13px;line-height:1.8}
+.stats strong{color:var(--gold)}
+.tip{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:var(--glass);padding:9px 15px;border-radius:99px;border:1px solid #ffffff25;font-size:12px;white-space:nowrap;text-align:center}
+#toast{position:absolute;top:90px;left:50%;transform:translateX(-50%);padding:10px 18px;background:#10243de8;border:1px solid var(--gold);border-radius:12px;opacity:0;transition:opacity .2s;font-size:13px}
+#panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(360px,90vw);background:#10243df2;border:1px solid #f5c65b88;border-radius:18px;padding:20px;display:none;pointer-events:auto;box-shadow:0 20px 70px #0008}
+#panel h2{margin:0 0 8px;color:var(--gold)}#panel p{font-size:14px;color:#d7e5f1;line-height:1.5}
+button{touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none; border:0;background:linear-gradient(135deg,#f7d16d,#dc9b35);color:#14243a;font-weight:800;padding:10px 14px;border-radius:11px;margin:4px;cursor:pointer}
+#profileBtn{position:absolute;top:82px;left:14px;pointer-events:auto;background:#10243de8;color:#f5c65b;border:1px solid #f5c65b88;padding:9px 12px;border-radius:12px;font-size:12px}
+#fullscreenBtn{position:absolute;right:14px;top:90px;pointer-events:auto;background:#10243de8;color:#f5c65b;border:1px solid #f5c65b88;padding:9px 12px;border-radius:12px;font-size:12px}
+#controls{position:absolute;left:14px;bottom:15px;display:none;pointer-events:auto}
+.pad{display:grid;grid-template-columns:46px 46px 46px;grid-template-rows:46px 46px 46px;gap:4px}
+.pad button{padding:0;margin:0;background:#12243acc;border:1px solid #ffffff55;color:white;font-size:20px}
+.pad .up{grid-column:2}.pad .left{grid-column:1;grid-row:2}.pad .right{grid-column:3;grid-row:2}.pad .down{grid-column:2;grid-row:3}
+#action{position:absolute;right:18px;bottom:35px;pointer-events:auto;width:76px;height:76px;border-radius:50%;background:linear-gradient(145deg,#ffe08a,#d99a2e);font-size:13px;box-shadow:0 5px 0 #986a20}
+@media(pointer:coarse){#controls{display:block}}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="hud">
+ <div class="brand"><b>NH TRADE EMPIRE</b><small>YOUR WORLD • YOUR STORY</small></div>
+ <button id="profileBtn" onclick="openProfile()">👤 PROFILE</button><button id="fullscreenBtn" onclick="toggleFullscreen()">⛶ FULL SCREEN</button><div class="stats">💰 <strong id="coins">120</strong> Empire Coins<br>🌱 <strong id="seeds">3</strong> Seeds<br>⭐ <strong id="level">Level 1</strong></div>
+ <div id="toast"></div>
+ <div class="tip">WASD / Arrow Keys • Gerakkan ke objek dan tekan <b>SPACE / ACTION</b></div>
+ <div id="panel"><h2 id="panelTitle">Welcome</h2><p id="panelText"></p><div id="panelButtons"></div><button onclick="closePanel()">Tutup</button></div>
+ <div id="controls"><div class="pad"><button class="up" data-dir="up">▲</button><button class="left" data-dir="left">◀</button><button class="right" data-dir="right">▶</button><button class="down" data-dir="down">▼</button></div></div>
+ <button id="action" onclick="interact()">ACTION</button>
+</div>
+<script>
+(()=> {
+const canvas=document.querySelector('#game'),ctx=canvas.getContext('2d');
+let W=0,H=0,dpr=1;
+function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
+addEventListener('resize',resize);resize();
+const tile=48, mapW=70,mapH=55;
+let coins=120,seeds=3,xp=0,level=1,day=1;
+let playerName=localStorage.getItem('nhte_player_name')||'Pemain NH';
+let avatarOutfit=Number(localStorage.getItem('nhte_outfit')||0), avatarHair=Number(localStorage.getItem('nhte_hair')||0), avatarSkin=Number(localStorage.getItem('nhte_skin')||0);
+const outfits=['#d94848','#387ed0','#7d48b8','#21a879','#e58a32'];
+const hairs=['#30241f','#6a3d22','#d7a642','#263b64','#a83e50'];
+const skins=['#f0c59c','#d99a70','#a96e4d','#f6d8b7'];
+const player={x:12*tile,y:13*tile,dir:'down',moving:false};
+const crops=[],decor=[],people=[];
+const buildings=[
+{x:5*tile,y:5*tile,w:4*tile,h:3*tile,name:'Empire Home',kind:'home',color:'#c77d55'},
+{x:17*tile,y:4*tile,w:5*tile,h:3*tile,name:'NH Market',kind:'market',color:'#e5b74b'},
+{x:25*tile,y:12*tile,w:4*tile,h:3*tile,name:'Community Hall',kind:'hall',color:'#a78bce'},
+{x:5*tile,y:18*tile,w:5*tile,h:3*tile,name:'Farm House',kind:'farm',color:'#80b86b'}
+];
+for(let i=0;i<260;i++){decor.push({x:Math.random()*mapW*tile,y:Math.random()*mapH*tile,type:Math.random()<.7?'tree':'flower'})}
+people.push({x:15*tile,y:13*tile,name:'Mira',color:'#d86d94',talk:'Selamat datang ke NH Trade Empire! Jom bina dunia kita.'},
+{x:24*tile,y:9*tile,name:'Aiman',color:'#63b5d9',talk:'Tanam benih, jaga tanaman dan jual hasil di NH Market.'},
+{x:11*tile,y:19*tile,name:'Pak Tani',color:'#e1a15b',talk:'Tanaman mengambil masa untuk matang. Teruskan explore!'});
+const keys={};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase()))e.preventDefault();if(e.key===' '||e.key.toLowerCase()==='e')interact()});
+addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+let touchDir='';
+document.querySelectorAll('[data-dir]').forEach(b=>{const d=b.dataset.dir;b.addEventListener('pointerdown',e=>{e.preventDefault();touchDir=d;b.setPointerCapture(e.pointerId)});['pointerup','pointercancel','lostpointercapture'].forEach(ev=>b.addEventListener(ev,()=>{if(touchDir===d)touchDir=''}))});
+function notify(s){let t=document.querySelector('#toast');t.textContent=s;t.style.opacity=1;clearTimeout(notify.timer);notify.timer=setTimeout(()=>t.style.opacity=0,2100)}
+function updateStats(){document.querySelector('#coins').textContent=coins;document.querySelector('#seeds').textContent=seeds;document.querySelector('#level').textContent='Level '+level}
+function panel(title,text,buttons=[]){document.querySelector('#panelTitle').textContent=title;document.querySelector('#panelText').textContent=text;let p=document.querySelector('#panelButtons');p.innerHTML='';buttons.forEach(({label,fn})=>{let b=document.createElement('button');b.textContent=label;b.onclick=fn;p.appendChild(b)});document.querySelector('#panel').style.display='block'}
+window.toggleFullscreen=async()=>{try{if(!document.fullscreenElement){await document.documentElement.requestFullscreen();}else{await document.exitFullscreen();}}catch(e){notify('Fullscreen tidak disokong browser ini. Cuba menu browser.')}};
+document.addEventListener('fullscreenchange',()=>{document.querySelector('#fullscreenBtn').textContent=document.fullscreenElement?'⛶ EXIT FULL':'⛶ FULL SCREEN';resize()});
+window.closePanel=()=>document.querySelector('#panel').style.display='none';
+window.openProfile=()=>{panel('Profil & Avatar','Ubah nama dan reka penampilan watak anda.');let holder=document.querySelector('#panelButtons');holder.innerHTML='';
+let input=document.createElement('input');input.value=playerName;input.maxLength=18;input.placeholder='Nama pemain';input.style='width:100%;padding:12px;border-radius:10px;border:1px solid #f5c65b;background:#182e48;color:white;font-size:16px;margin:8px 0;user-select:text;-webkit-user-select:text';holder.appendChild(input);
+let info=document.createElement('p');info.textContent='⭐ Level '+level+' • XP '+xp+' • 💰 '+coins+' Empire Coins';holder.appendChild(info);
+function addChoice(label,fn){let b=document.createElement('button');b.textContent=label;b.onclick=fn;holder.appendChild(b)}
+addChoice('👕 Tukar Baju',()=>{avatarOutfit=(avatarOutfit+1)%outfits.length;localStorage.setItem('nhte_outfit',avatarOutfit);notify('Design baju ditukar!');openProfile()});
+addChoice('💇 Tukar Rambut',()=>{avatarHair=(avatarHair+1)%hairs.length;localStorage.setItem('nhte_hair',avatarHair);notify('Gaya rambut ditukar!');openProfile()});
+addChoice('🎨 Tukar Warna Kulit',()=>{avatarSkin=(avatarSkin+1)%skins.length;localStorage.setItem('nhte_skin',avatarSkin);notify('Avatar dikemaskini!');openProfile()});
+addChoice('💾 Simpan Nama',()=>{playerName=(input.value.trim()||'Pemain NH').slice(0,18);localStorage.setItem('nhte_player_name',playerName);notify('Profil disimpan: '+playerName);closePanel()});
+};holder.appendChild(save);
+};
+function nearby(){let all=[...buildings.map(b=>({...b,cx:b.x+b.w/2,cy:b.y+b.h/2})),...people.map(p=>({...p,cx:p.x,cy:p.y,kind:'person'})),{x:12*tile,y:16*tile,w:tile*5,h:tile*4,cx:14.5*tile,cy:18*tile,kind:'plot',name:'Kebun'}];return all.filter(o=>Math.hypot(player.x-o.cx,player.y-o.cy)<95).sort((a,b)=>Math.hypot(player.x-a.cx,player.y-a.cy)-Math.hypot(player.x-b.cx,player.y-b.cy))[0]}
+window.interact=()=>{let o=nearby();if(!o){notify('Tiada apa-apa berdekatan. Explore dunia!');return}
+if(o.kind==='person'){panel(o.name,o.talk,[{label:'Beri salam 👋',fn:()=>{xp+=5;checkLevel();notify('Persahabatan +5 XP');closePanel()}}])}
+else if(o.kind==='market'){panel('NH Market','Selamat datang ke pasar Empire!',[{label:'Beli 3 benih — 15 coins',fn:()=>{if(coins>=15){coins-=15;seeds+=3;updateStats();notify('3 benih berjaya dibeli!')}else notify('Coins tidak cukup.');closePanel()}},{label:'Jual hasil tuaian — 25 coins',fn:()=>{let ripe=crops.filter(c=>c.stage>=3).length;if(ripe){crops.splice(0,ripe);coins+=ripe*25;xp+=ripe*10;checkLevel();updateStats();notify('Hasil dijual: +'+ripe*25+' coins')}else notify('Belum ada tanaman matang.');closePanel()}}])}
+else if(o.kind==='home'){panel('Empire Home','Rumah anda. Rehat dan sambut hari baru.',[{label:'Tidur • Hari seterusnya',fn:()=>{day++;crops.forEach(c=>c.stage=Math.min(3,c.stage+1));notify('Hari '+day+' bermula. Tanaman berkembang!');closePanel()}}])}
+else if(o.kind==='plot'||o.kind==='farm'){panel('NH Farm','Kebun anda. Tanam benih dan tuai hasil.',[{label:'Tanam benih',fn:()=>{if(seeds>0){let gx=Math.round(player.x/tile),gy=Math.round(player.y/tile);crops.push({x:gx*tile,y:gy*tile,stage:0});seeds--;updateStats();notify('Benih ditanam! Tidur untuk membesarkannya.')}else notify('Benih habis. Beli di NH Market.');closePanel()}},{label:'Tuai tanaman matang',fn:()=>{let c=crops.find(c=>c.stage>=3&&Math.hypot(c.x-player.x,c.y-player.y)<100);if(c){crops.splice(crops.indexOf(c),1);coins+=25;xp+=10;checkLevel();updateStats();notify('+25 Empire Coins!')}else notify('Dekati tanaman yang matang.');closePanel()}}])}
+else if(o.kind==='hall'){panel('Community Hall','Tempat berkumpul, berkenalan dan membina komuniti.','')}}
+function checkLevel(){if(xp>=level*50){xp-=level*50;level++;notify('LEVEL UP! Anda kini Level '+level)}}
+function move(){let dx=0,dy=0;const up=keys.w||keys.arrowup||touchDir==='up',down=keys.s||keys.arrowdown||touchDir==='down',left=keys.a||keys.arrowleft||touchDir==='left',right=keys.d||keys.arrowright||touchDir==='right';if(up)dy--;if(down)dy++;if(left)dx--;if(right)dx++;if(dx||dy){let len=Math.hypot(dx,dy);dx/=len;dy/=len;player.x+=dx*3.1;player.y+=dy*3.1;player.dir=Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up');player.moving=true}else player.moving=false;player.x=Math.max(tile,Math.min(mapW*tile-tile,player.x));player.y=Math.max(tile,Math.min(mapH*tile-tile,player.y))}
+function drawTile(x,y,color){ctx.fillStyle=color;ctx.fillRect(x,y,tile,tile)}
+function drawWorld(camX,camY){ctx.fillStyle='#7cbf79';ctx.fillRect(0,0,W,H);
+for(let y=0;y<mapH;y++)for(let x=0;x<mapW;x++){let sx=x*tile-camX,sy=y*tile-camY;let n=(x*17+y*31)%9;drawTile(sx,sy,n===0?'#78b975':n===1?'#83c47d':'#7dbd78');if(n===3){ctx.fillStyle='#a3d18c';ctx.beginPath();ctx.arc(sx+24,sy+25,3,0,Math.PI*2);ctx.fill()}}
+decor.forEach(d=>{let sx=d.x-camX,sy=d.y-camY;if(sx<-70||sy<-70||sx>W+70||sy>H+70)return;if(d.type==='tree'){ctx.fillStyle='#735039';ctx.fillRect(sx-5,sy+10,10,22);ctx.fillStyle='#347d4d';ctx.beginPath();ctx.arc(sx,sy,20,0,Math.PI*2);ctx.fill();ctx.fillStyle='#4d9b5e';ctx.beginPath();ctx.arc(sx-7,sy-6,12,0,Math.PI*2);ctx.fill()}else{ctx.fillStyle='#ffe28a';ctx.beginPath();ctx.arc(sx,sy,4,0,Math.PI*2);ctx.fill()}});
+buildings.forEach(b=>{let sx=b.x-camX,sy=b.y-camY;if(sx<-b.w||sy<-b.h||sx>W||sy>H)return;ctx.fillStyle='#0002';ctx.fillRect(sx+8,sy+b.h-2,b.w,b.h/3);ctx.fillStyle=b.color;ctx.fillRect(sx,sy+20,b.w,b.h-20);ctx.fillStyle='#f4dfb7';ctx.beginPath();ctx.moveTo(sx-8,sy+22);ctx.lineTo(sx+b.w/2,sy-18);ctx.lineTo(sx+b.w+8,sy+22);ctx.closePath();ctx.fill();ctx.fillStyle='#6b4a3c';ctx.fillRect(sx+b.w/2-12,sy+b.h-40,24,40);ctx.fillStyle='#bfe8f2';ctx.fillRect(sx+15,sy+40,20,18);ctx.fillRect(sx+b.w-35,sy+40,20,18);ctx.fillStyle='#fff';ctx.font='bold 12px system-ui';ctx.textAlign='center';ctx.fillText(b.name,sx+b.w/2,sy+b.h+14)});
+crops.forEach(c=>{let sx=c.x-camX,sy=c.y-camY;ctx.fillStyle='#694a2d';ctx.fillRect(sx-11,sy-7,22,15);if(c.stage===0){ctx.fillStyle='#8bce69';ctx.fillRect(sx-2,sy-5,4,9)}else{ctx.fillStyle=c.stage>=3?'#f5c94e':'#4b9c51';ctx.beginPath();ctx.arc(sx,sy-9-c.stage*3,7+c.stage*2,0,Math.PI*2);ctx.fill();ctx.fillStyle='#3c8445';ctx.fillRect(sx-2,sy-12,4,12)}});
+people.forEach(p=>drawPerson(p.x-camX,p.y-camY,p.color,p.name));
+drawPerson(player.x-camX,player.y-camY,'#d94848',playerName,true);
+}
+function drawPerson(x,y,color,name,isPlayer=false){
+const shirt=isPlayer?outfits[avatarOutfit]:color, hair=isPlayer?hairs[avatarHair]:'#30241f', skin=isPlayer?skins[avatarSkin]:'#f0c59c';
+ctx.fillStyle='#0003';ctx.beginPath();ctx.ellipse(x,y+15,14,6,0,0,Math.PI*2);ctx.fill();
+// legs and shoes
+ctx.fillStyle='#26354a';ctx.fillRect(x-9,y+15,7,13);ctx.fillRect(x+2,y+15,7,13);
+ctx.fillStyle='#e9edf3';ctx.fillRect(x-10,y+26,9,4);ctx.fillRect(x+1,y+26,9,4);
+// body with shoulder detail
+ctx.fillStyle=shirt;ctx.beginPath();ctx.roundRect(x-13,y-5,26,23,6);ctx.fill();
+ctx.fillStyle='#ffffff70';ctx.fillRect(x-2,y-3,4,17);
+// face, ears, hair
+ctx.fillStyle=skin;ctx.beginPath();ctx.arc(x,y-15,11,0,Math.PI*2);ctx.fill();
+ctx.fillStyle=hair;ctx.beginPath();ctx.arc(x,y-18,11,Math.PI,Math.PI*2);ctx.lineTo(x+10,y-13);ctx.lineTo(x+5,y-19);ctx.lineTo(x-2,y-12);ctx.lineTo(x-10,y-13);ctx.closePath();ctx.fill();
+// eyes
+ctx.fillStyle='#26354a';ctx.fillRect(x-5,y-15,2,3);ctx.fillRect(x+3,y-15,2,3);
+// name tag
+ctx.fillStyle='#10243ddd';ctx.beginPath();ctx.roundRect(x-35,y-42,70,15,6);ctx.fill();ctx.fillStyle='#fff';ctx.font='10px system-ui';ctx.textAlign='center';ctx.fillText(name.slice(0,12),x,y-31);
+if(isPlayer){ctx.strokeStyle='#f8d36d';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y-15,15,0,Math.PI*2);ctx.stroke()}
+}
+function frame(){move();let camX=Math.max(0,Math.min(mapW*tile-W,player.x-W/2)),camY=Math.max(0,Math.min(mapH*tile-H,player.y-H/2));drawWorld(camX,camY);requestAnimationFrame(frame)}frame();
+document.querySelector('#action').addEventListener('click',interact);
+})();
+</script>
+</body></html>
