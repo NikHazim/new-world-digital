@@ -1,0 +1,27 @@
+NEW WORLD DIGITAL — KEMAS KINI 100 MAP
+
+1. Extract semua fail ZIP ini.
+2. Upload dan gantikan fail di root repository GitHub Pages:
+   index.html, app.js, expansion.js, style.css, README.md, START_HERE_MS.txt, .nojekyll
+3. Pastikan expansion.js turut berada di root bersama index.html.
+4. GitHub: Settings > Pages > Deploy from branch > main > /(root).
+5. Tunggu GitHub Pages selesai deploy, kemudian buka semula laman.
+6. Log masuk sebagai Master. Kod jemputan akan dijana automatik pada panel MASTER INVITATION.
+7. Muzik perlu dimulakan dengan butang MAIN MUZIK MAP kerana pelayar memerlukan sentuhan/klik pengguna.
+
+KAWALAN GAME:
+WASD / anak panah = bergerak
+F = interaksi / kutip relik / jinakkan makhluk
+G = serang penjaga (selepas 5 relik + makhluk)
+E = buka gerbang map seterusnya (selepas quest selesai)
+V = tunggang / turun skuter maya (jika dimiliki)
+R = terbang / turun (selepas jinakkan Zephyroo atau Bloomanta)
+ESC = keluar rumah
+
+GANJARAN JEMPUTAN:
+Skuter ialah item maya dalam permainan sahaja, bukan motosikal fizikal.
+Pemain baharu perlu daftar menggunakan kod dan profilnya diluluskan. Selepas log masuk, kod diproses sekali sahaja dan kedua-dua pemain menerima skuter maya.
+
+PASARAN:
+Hanya NWD coin maya. Tiada wang sebenar, deposit atau pengeluaran wang.
+Jangan masukkan Supabase service_role/secret key ke dalam fail GitHub.
